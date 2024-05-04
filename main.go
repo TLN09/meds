@@ -14,6 +14,5 @@ func main() {
 
 	switch *secLvl {
 	case 1:
-
 	}
 }
