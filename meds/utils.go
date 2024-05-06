@@ -253,16 +253,6 @@ func zeroCol(M *matrix.Matrix, j int) bool {
 	return zero_col
 }
 
-func leftmostNonZeroCol(M *matrix.Matrix) int {
-	j := 0
-
-	for j < M.N && zeroCol(M, j) {
-		j++
-	}
-
-	return j
-}
-
 func SF(M *matrix.Matrix) *matrix.Matrix {
 	sf := matrix.New(M.M, M.N, M.Q)
 	for i := 0; i < M.M; i++ {
@@ -337,7 +327,7 @@ func Solve(G_prime *matrix.Matrix, a *finiteField.Fq, m, n int) (*matrix.Matrix,
 		return nil, nil
 	}
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
-	backprop_to_sf(rsys, m, n)
+	backprop_to_sf(rsys, m)
 	// sf_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys_rref: %v\n", rsys), "0", " "))
 
@@ -533,7 +523,7 @@ func zero_col_submatrix(M *matrix.Matrix, j, row, col, m int, zero *finiteField.
 	return zero_col
 }
 
-func backprop_to_sf(M *matrix.Matrix, m, n int) {
+func backprop_to_sf(M *matrix.Matrix, m int) {
 	zero := finiteField.NewFieldElm(0, M.Q)
 	col := M.N - 2
 	for row := M.M - 1; row >= m*m; row-- {
