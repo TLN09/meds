@@ -117,6 +117,7 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	B_tilde := make([]*matrix.Matrix, t)
 
 	for i := 0; i < t; i++ {
+	LINE_15:
 		sigma_prime := make([]byte, l_salt+l_tree_seed+4)
 		idx := 0
 		for j := 0; j < l_salt; j++ {
@@ -137,7 +138,6 @@ func Sign(sk, msg []byte) ([]byte, error) {
 		}
 		sigma_A_tilde := make([]byte, l_pub_seed)
 		sigma_B_tilde := make([]byte, l_pub_seed)
-	LINE_16:
 		xof = sha3.NewShake256()
 		xof.Write(sigma_prime)
 		xof.Read(sigma_A_tilde)
@@ -148,7 +148,7 @@ func Sign(sk, msg []byte) ([]byte, error) {
 		G_tilde[i] = Pi(A_tilde[i], G_0, B_tilde[i])
 		G_tilde[i] = SF(G_tilde[i])
 		if G_tilde[i] == nil {
-			goto LINE_16
+			goto LINE_15
 		}
 	}
 	H := sha3.NewShake256()
@@ -246,6 +246,7 @@ func Verify(pk, msg_s []byte) []byte {
 				return nil
 			}
 		} else {
+		LINE_24:
 			sigma_prime := make([]byte, l_salt+l_tree_seed+4)
 			sigma_A := make([]byte, l_pub_seed)
 			sigma_B := make([]byte, l_pub_seed)
@@ -266,7 +267,6 @@ func Verify(pk, msg_s []byte) []byte {
 				sigma_prime[idx] = x[j]
 				idx++
 			}
-		LINE_25:
 			xof := sha3.NewShake256()
 			xof.Write(sigma_prime)
 			xof.Read(sigma_A)
@@ -277,7 +277,7 @@ func Verify(pk, msg_s []byte) []byte {
 			G_hat[i] = Pi(A_hat, G_0, B_hat)
 			G_hat[i] = SF(G_hat[i])
 			if G_hat[i] == nil {
-				goto LINE_25
+				goto LINE_24
 			}
 		}
 	}
