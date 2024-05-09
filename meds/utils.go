@@ -409,7 +409,7 @@ func fill_rsys(rsys *matrix.Matrix, P0_prime []*matrix.Matrix, P []*matrix.Matri
 	}
 
 	// Filling in coefficients of B
-	// Only needing the first part with B * I_m as the other part gets eliminated by inserting -eqs1_A_coeff after eqs2_A_coeff
+	// Only filling in 1's on the first m*m part of the diagonal as the diagonal from U_k gets eliminated by inserting -eqs1_A_coeff at the end
 	row = 0
 	for i := 0; i < P[0].M; i++ {
 		for j := 0; j < P[0].N; j++ {
@@ -417,15 +417,6 @@ func fill_rsys(rsys *matrix.Matrix, P0_prime []*matrix.Matrix, P []*matrix.Matri
 			row++
 		}
 	}
-
-	// col = P[1].N
-	// for i := 1; i < P[1].M; i++ {
-	// 	for j := 0; j < P[1].N; j++ {
-	// 		rsys.Set(row, col, finiteField.NewFieldElm(1, rsys.Q))
-	// 		row++
-	// 		col++
-	// 	}
-	// }
 }
 
 func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
