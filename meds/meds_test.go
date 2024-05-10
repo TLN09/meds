@@ -10,12 +10,12 @@ func TestKeyGen(test *testing.T) {
 func TestSign(test *testing.T) {
 	_, sk := KeyGen()
 	msg := []byte("This is my message")
-	signed, err := Sign(sk, msg)
+	_, err := Sign(sk, msg)
 	if err != nil {
 		test.Errorf("%v\n", err)
 	}
-	test.Errorf("%v\nsigned[l_sig:]: %v\n", signed[l_sig-l_salt-l_digest:], signed[l_sig:])
-	test.Errorf("%v\n", signed)
+	// test.Errorf("%v\nsigned[l_sig:]: %v\n", signed[l_sig-l_salt-l_digest:], signed[l_sig:])
+	// test.Errorf("%v\n", signed)
 }
 
 func TestVerify(test *testing.T) {

@@ -46,29 +46,29 @@ func KeyGen() ([]byte, []byte) {
 	addToKey(sk, delta, &sk_idx)
 	addToKey(sk, sigma_G_0, &sk_idx)
 	addToKey(pk, sigma_G_0, &pk_idx)
+	I := matrix.Identity(m, q)
 	for i := 1; i < s; i++ {
-	LINE_5:
-		xof := sha3.NewShake256()
-		xof.Write(sigma)
-		sigma_a := make([]byte, l_sec_seed)
-		sigma_T := make([]byte, l_sec_seed)
-		xof.Read(sigma_a)
-		xof.Read(sigma_T)
-		xof.Read(sigma)
-		T_i := ExpandInvMat(sigma_T, q, k)
-		a_mm := ExpandFqs(sigma_a, 1, q)[0]
-		G_0_prime := T_i.Mul(G_0)
-		A, B_inv := Solve(G_0_prime, a_mm, m, n)
-		I := matrix.Identity(m, q)
-		if (A == nil && B_inv == nil) || !Invertable(A, I) || !Invertable(B_inv, I) {
-			goto LINE_5
-		}
-		A_inv := Inverse(A)
-		B := Inverse(B_inv)
-		G := Pi(A, G_0, B)
-		G = SF(G)
-		if G == nil {
-			goto LINE_5
+		var G *matrix.Matrix = nil
+		var A_inv *matrix.Matrix
+		var A, B_inv *matrix.Matrix = nil, nil
+		for G == nil {
+			for (A == nil && B_inv == nil) || !Invertable(A, I) || !Invertable(B_inv, I) {
+				xof := sha3.NewShake256()
+				xof.Write(sigma)
+				sigma_a := make([]byte, l_sec_seed)
+				sigma_T := make([]byte, l_sec_seed)
+				xof.Read(sigma_a)
+				xof.Read(sigma_T)
+				xof.Read(sigma)
+				T_i := ExpandInvMat(sigma_T, q, k)
+				a_mm := ExpandFqs(sigma_a, 1, q)[0]
+				G_0_prime := T_i.Mul(G_0)
+				A, B_inv = Solve(G_0_prime, a_mm, m, n)
+			}
+			A_inv = Inverse(A)
+			B := Inverse(B_inv)
+			G = Pi(A, G_0, B)
+			G = SF(G)
 		}
 		addToKey(pk, CompressG(G), &pk_idx)
 		addToKey(sk, A_inv.Compress(), &sk_idx)
@@ -90,9 +90,9 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	f_sk += l_pub_seed
 	G_0 := ExpandSystMat(sigma_G_0, q, k, m, n)
 
-	A_inv := make([]*matrix.Matrix, s)
-	B_inv := make([]*matrix.Matrix, s)
-	for i := 1; i <= s-1; i++ {
+	A_inv := make([]*matrix.Matrix, s-1)
+	B_inv := make([]*matrix.Matrix, s-1)
+	for i := 0; i < s-1; i++ {
 		// fmt.Printf("%v\n", len(sk[f_sk:f_sk+l_f_mm]))
 		A_inv[i] = matrix.Decompress(sk[f_sk:f_sk+l_f_mm], m, m, q)
 		f_sk += l_f_mm
@@ -115,40 +115,37 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	G_tilde := make([]*matrix.Matrix, t)
 	A_tilde := make([]*matrix.Matrix, t)
 	B_tilde := make([]*matrix.Matrix, t)
-
+	sigma_prime := make([]byte, l_salt+l_tree_seed+4)
 	for i := 0; i < t; i++ {
-	LINE_15:
-		sigma_prime := make([]byte, l_salt+l_tree_seed+4)
-		idx := 0
-		for j := 0; j < l_salt; j++ {
-			sigma_prime[idx] = alpha[j]
-			idx++
-		}
-		for j := 0; j < l_tree_seed; j++ {
-			sigma_prime[idx] = seeds[i][j]
-			idx++
-		}
-		x, err := ToBytes(int32(math.Pow(2, float64(1+int(math.Ceil(math.Log2(float64(t)))))))+int32(i), 4)
-		if err != nil {
-			return []byte{}, err
-		}
-		for j := 0; j < 4; j++ {
-			sigma_prime[idx] = x[j]
-			idx++
-		}
-		sigma_A_tilde := make([]byte, l_pub_seed)
-		sigma_B_tilde := make([]byte, l_pub_seed)
-		xof = sha3.NewShake256()
-		xof.Write(sigma_prime)
-		xof.Read(sigma_A_tilde)
-		xof.Read(sigma_B_tilde)
-		xof.Read(sigma_prime)
-		A_tilde[i] = ExpandInvMat(sigma_A_tilde, q, m)
-		B_tilde[i] = ExpandInvMat(sigma_B_tilde, q, n)
-		G_tilde[i] = Pi(A_tilde[i], G_0, B_tilde[i])
-		G_tilde[i] = SF(G_tilde[i])
-		if G_tilde[i] == nil {
-			goto LINE_15
+		for G_tilde[i] == nil {
+			idx := 0
+			for j := 0; j < l_salt; j++ {
+				sigma_prime[idx] = alpha[j]
+				idx++
+			}
+			for j := 0; j < l_tree_seed; j++ {
+				sigma_prime[idx] = seeds[i][j]
+				idx++
+			}
+			x, err := ToBytes(int32(math.Pow(2, float64(1+int(math.Ceil(math.Log2(float64(t)))))))+int32(i), 4)
+			if err != nil {
+				return []byte{}, err
+			}
+			for j := 0; j < 4; j++ {
+				sigma_prime[idx] = x[j]
+				idx++
+			}
+			sigma_A_tilde := make([]byte, l_pub_seed)
+			sigma_B_tilde := make([]byte, l_pub_seed)
+			xof = sha3.NewShake256()
+			xof.Write(sigma_prime)
+			xof.Read(sigma_A_tilde)
+			xof.Read(sigma_B_tilde)
+			xof.Read(sigma_prime)
+			A_tilde[i] = ExpandInvMat(sigma_A_tilde, q, m)
+			B_tilde[i] = ExpandInvMat(sigma_B_tilde, q, n)
+			G_tilde[i] = Pi(A_tilde[i], G_0, B_tilde[i])
+			G_tilde[i] = SF(G_tilde[i])
 		}
 	}
 	H := sha3.NewShake256()
@@ -162,32 +159,27 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	// fmt.Printf("d: %v\n", d)
 
 	h := ParseHash(s, t, w, d)
-	v := make([][]byte, w)
+	msg_s := make([]byte, l_sig+len(msg))
 	idx := 0
 	for i := 0; i < t; i++ {
 		if h[i] > 0 {
 			// fmt.Printf("h[i]: %v\nÃ: %v\nA^-1: %v\nB^-1: %v\nB~: %v\n", h[i], len(A_tilde), len(A_inv), len(B_inv), len(B_tilde))
-			mu := A_tilde[i].Mul(A_inv[h[i]])
-			nu := B_inv[h[i]].Mul(B_tilde[i])
-			v[idx] = mu.Compress()
-			v[idx] = append(v[idx], nu.Compress()...)
-			idx++
+			mu := A_tilde[i].Mul(A_inv[h[i]-1])
+			nu := B_inv[h[i]-1].Mul(B_tilde[i])
+			for _, b := range mu.Compress() {
+				msg_s[idx] = b
+				idx++
+			}
+			for _, b := range nu.Compress() {
+				msg_s[idx] = b
+				idx++
+			}
 		}
 	}
 
 	// fmt.Printf("%v\n", len(v) == 2*w)
 
 	p := SeedTreeToPath(w, t, h, rho, alpha)
-	// fmt.Printf("p: %v\n", p)
-	msg_s := make([]byte, l_sig+len(msg))
-	idx = 0
-	// fmt.Printf("%v\n", len(v)*len(v[0])+len(p)+len(d)+len(alpha) == l_sig)
-	for i := 0; i < w; i++ {
-		for j := 0; j < len(v[i]); j++ {
-			msg_s[idx] = v[i][j]
-			idx++
-		}
-	}
 	for i := 0; i < len(p); i++ {
 		msg_s[idx] = p[i]
 		idx++
@@ -214,8 +206,8 @@ func Verify(pk, msg_s []byte) []byte {
 	sigma_G_0 := pk[:l_pub_seed]
 	G_0 := ExpandSystMat(sigma_G_0, q, k, m, n)
 	f_pk := l_pub_seed
-	G := make([]*matrix.Matrix, s)
-	for i := 1; i <= s-1; i++ {
+	G := make([]*matrix.Matrix, s-1)
+	for i := 0; i < s-1; i++ {
 		G[i] = DecompressG(pk[f_pk:f_pk+l_G_i], q, m, n, k)
 		f_pk += l_G_i
 	}
@@ -240,7 +232,7 @@ func Verify(pk, msg_s []byte) []byte {
 			if !Invertable(mu, I) || !Invertable(nu, I) {
 				return nil
 			}
-			G_hat[i] = Pi(mu, G[h[i]], nu)
+			G_hat[i] = Pi(mu, G[h[i]-1], nu)
 			G_hat[i] = SF(G_hat[i])
 			if G_hat[i] == nil {
 				return nil

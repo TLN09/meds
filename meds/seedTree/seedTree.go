@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"strings"
 
 	"golang.org/x/crypto/sha3"
@@ -67,12 +68,11 @@ func (node *SeedTreeNode) CreateSeedTree(maxHeight int, leafs *[]*SeedTreeNode) 
 func (node *SeedTreeNode) createChildren() error {
 	G := sha3.NewShake256()
 	G.Write(node.salt)
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, uint16(node.i*node.i-1+node.j))
+	address, err := getAddress(node.i, node.j)
 	if err != nil {
 		return err
 	}
-	G.Write(buf.Bytes())
+	G.Write(address)
 	G.Write(node.seed)
 	seedLength := len(node.seed)
 	node.left = New(make([]byte, seedLength), node.salt, node.i+1, 2*node.j, node, nil, nil)
@@ -81,6 +81,15 @@ func (node *SeedTreeNode) createChildren() error {
 	G.Read(node.right.seed)
 
 	return nil
+}
+
+func getAddress(i, j int) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.LittleEndian, uint16(int(math.Pow(2, float64(i)))-1+j))
+	if err != nil {
+		return []byte{}, err
+	}
+	return buf.Bytes(), nil
 }
 
 func (node *SeedTreeNode) SeedTreeToPath(path *[]byte, idx *int) {
@@ -146,12 +155,11 @@ func (node *SeedTreeNode) isLeaf() bool {
 func (node *SeedTreeNode) pathToSeedTreeComputeSeeds() error {
 	G := sha3.NewShake256()
 	G.Write(node.salt)
-	buf := new(bytes.Buffer)
-	err := binary.Write(buf, binary.LittleEndian, uint16(node.i*node.i-1+node.j))
+	address, err := getAddress(node.i, node.j)
 	if err != nil {
 		return err
 	}
-	G.Write(buf.Bytes())
+	G.Write(address)
 	G.Write(node.seed)
 	if node.left != nil {
 		node.left.seed = make([]byte, len(node.seed))
