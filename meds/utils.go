@@ -328,7 +328,7 @@ func Solve(G_prime *matrix.Matrix, a *finiteField.Fq, m, n int) (*matrix.Matrix,
 	}
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
 	backprop_to_sf(rsys, m)
-	// sf_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
+	// SF_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys_rref: %v\n", rsys), "0", " "))
 
 	values := make([]*finiteField.Fq, m*m+n*n)
@@ -423,7 +423,7 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 	base_row := m * m
 	base_col := n * n
 	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", base_row, base_col, m, 2*n)
-	err := sf_on_submatrix(rsys, base_row, base_col, m, 2*n)
+	err := SF_on_submatrix(rsys, base_row, base_col, m, 2*n)
 	if err != nil {
 		return err
 	}
@@ -440,7 +440,7 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 		col += n
 	}
 	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", row, col, m, 2*n)
-	err = sf_on_submatrix(rsys, row, col, m, 2*n)
+	err = SF_on_submatrix(rsys, row, col, m, 2*n)
 	if err != nil {
 		return err
 	}
@@ -448,7 +448,7 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 	col += n
 
 	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", row, col, m-1, n)
-	err = sf_on_submatrix(rsys, row, col, m-1, n)
+	err = SF_on_submatrix(rsys, row, col, m-1, n)
 	if err != nil {
 		return err
 	}
@@ -456,7 +456,7 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 	return nil
 }
 
-func sf_on_submatrix(M *matrix.Matrix, row, col, m, n int) error {
+func SF_on_submatrix(M *matrix.Matrix, row, col, m, n int) error {
 	zero := finiteField.NewFieldElm(0, M.Q)
 
 	failed := false

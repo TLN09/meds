@@ -1,33 +1,149 @@
 package meds
 
 import (
+	"fmt"
 	"math"
 	"meds/matrix"
 
 	"golang.org/x/crypto/sha3"
 )
 
-const q int = 4093
-const q_bitlen int = 16
-const n int = 14
-const m int = 14
-const k int = 14
-const s int = 4
-const t int = 1152
-const w int = 14
-const l_tree_seed int = 16
-const l_sec_seed int = 32
-const l_pub_seed int = 32
-const l_salt int = 32
-const l_digest int = 32
-const l_f_mm int = m * m * (q_bitlen / 8)
-const l_f_nn int = n * n * (q_bitlen / 8)
-const l_G_i int = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-const l_sk int = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-const l_pk int = (s-1)*l_G_i + l_pub_seed
+var q, q_bitlen, n, m, k, s, t, w int
+var l_tree_seed, l_sec_seed, l_pub_seed, l_salt, l_digest int
+var l_f_mm, l_f_nn, l_G_i, l_sk, l_pk, l_path, l_sig int
 
-var l_path int = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-var l_sig int = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+func ParameterSetup(set int) {
+	switch set {
+	case 9923:
+		q = 4093
+		q_bitlen = 16
+		n = 14
+		m = 14
+		k = 14
+		s = 4
+		t = 1152
+		w = 14
+		l_tree_seed = 16
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	case 13220:
+		q = 4093
+		q_bitlen = 16
+		n = 14
+		m = 14
+		k = 14
+		s = 5
+		t = 192
+		w = 20
+		l_tree_seed = 16
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	case 41711:
+		q = 4093
+		q_bitlen = 16
+		n = 22
+		m = 22
+		k = 22
+		s = 4
+		t = 608
+		w = 26
+		l_tree_seed = 24
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	case 69497:
+		q = 4093
+		q_bitlen = 16
+		n = 22
+		m = 22
+		k = 22
+		s = 5
+		t = 160
+		w = 36
+		l_tree_seed = 24
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	case 134180:
+		q = 2039
+		q_bitlen = 16
+		n = 30
+		m = 30
+		k = 30
+		s = 5
+		t = 192
+		w = 52
+		l_tree_seed = 32
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	case 167717:
+		q = 2039
+		q_bitlen = 16
+		n = 30
+		m = 30
+		k = 30
+		s = 6
+		t = 112
+		w = 66
+		l_tree_seed = 32
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
+	default:
+		fmt.Printf("Parameter selection error\n")
+	}
+}
 
 func KeyGen() ([]byte, []byte) {
 	delta := Randombytes(l_sec_seed)
@@ -233,43 +349,41 @@ func Verify(pk, msg_s []byte) []byte {
 				return nil
 			}
 			G_hat[i] = Pi(mu, G[h[i]-1], nu)
-			G_hat[i] = SF(G_hat[i])
-			if G_hat[i] == nil {
-				return nil
-			}
-		} else {
-		LINE_24:
-			sigma_prime := make([]byte, l_salt+l_tree_seed+4)
-			sigma_A := make([]byte, l_pub_seed)
-			sigma_B := make([]byte, l_pub_seed)
-			x, err := ToBytes(int32(math.Pow(2, float64(1+int(math.Ceil(math.Log2(float64(t)))))))+int32(i), 4)
+			err := SF_on_submatrix(G_hat[i], 0, 0, G_hat[i].M, G_hat[i].N)
 			if err != nil {
 				return nil
 			}
-			idx := 0
-			for j := 0; j < l_salt; j++ {
-				sigma_prime[idx] = alpha[j]
-				idx++
-			}
-			for j := 0; j < l_tree_seed; j++ {
-				sigma_prime[idx] = seeds[i][j]
-				idx++
-			}
-			for j := 0; j < 4; j++ {
-				sigma_prime[idx] = x[j]
-				idx++
-			}
-			xof := sha3.NewShake256()
-			xof.Write(sigma_prime)
-			xof.Read(sigma_A)
-			xof.Read(sigma_B)
-			xof.Read(sigma_prime)
-			A_hat := ExpandInvMat(sigma_A, q, m)
-			B_hat := ExpandInvMat(sigma_B, q, n)
-			G_hat[i] = Pi(A_hat, G_0, B_hat)
-			G_hat[i] = SF(G_hat[i])
-			if G_hat[i] == nil {
-				goto LINE_24
+		} else {
+			for G_hat[i] == nil {
+				sigma_prime := make([]byte, l_salt+l_tree_seed+4)
+				sigma_A := make([]byte, l_pub_seed)
+				sigma_B := make([]byte, l_pub_seed)
+				x, err := ToBytes(int32(math.Pow(2, float64(1+int(math.Ceil(math.Log2(float64(t)))))))+int32(i), 4)
+				if err != nil {
+					return nil
+				}
+				idx := 0
+				for j := 0; j < l_salt; j++ {
+					sigma_prime[idx] = alpha[j]
+					idx++
+				}
+				for j := 0; j < l_tree_seed; j++ {
+					sigma_prime[idx] = seeds[i][j]
+					idx++
+				}
+				for j := 0; j < 4; j++ {
+					sigma_prime[idx] = x[j]
+					idx++
+				}
+				xof := sha3.NewShake256()
+				xof.Write(sigma_prime)
+				xof.Read(sigma_A)
+				xof.Read(sigma_B)
+				xof.Read(sigma_prime)
+				A_hat := ExpandInvMat(sigma_A, q, m)
+				B_hat := ExpandInvMat(sigma_B, q, n)
+				G_hat[i] = Pi(A_hat, G_0, B_hat)
+				G_hat[i] = SF(G_hat[i])
 			}
 		}
 	}
