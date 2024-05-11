@@ -3,7 +3,7 @@ go 1.22.2
 use (
 	.
 	./meds
-	./meds/finiteField
-	./meds/matrix
-	./meds/seedTree
+	./finiteField
+	./matrix
+	./seedTree
 )
