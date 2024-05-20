@@ -205,7 +205,6 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	sigma_G_0 := sk[f_sk : f_sk+l_pub_seed]
 	f_sk += l_pub_seed
 	G_0 := ExpandSystMat(sigma_G_0, q, k, m, n)
-
 	A_inv := make([]*matrix.Matrix, s-1)
 	B_inv := make([]*matrix.Matrix, s-1)
 	for i := 0; i < s-1; i++ {
@@ -346,11 +345,13 @@ func Verify(pk, msg_s []byte) []byte {
 			nu := matrix.Decompress(msg_s[f_msg_s+l_f_mm:f_msg_s+l_f_mm+l_f_nn], n, n, q)
 			f_msg_s += l_f_mm + l_f_nn
 			if !Invertable(mu, I) || !Invertable(nu, I) {
+				fmt.Print("Mu or Nu not invertable\n")
 				return nil
 			}
 			G_hat[i] = Pi(mu, G[h[i]-1], nu)
 			err := SF_on_submatrix(G_hat[i], 0, 0, G_hat[i].M, G_hat[i].N)
 			if err != nil {
+				fmt.Print("SF failed on G_hat\n")
 				return nil
 			}
 		} else {
@@ -360,6 +361,7 @@ func Verify(pk, msg_s []byte) []byte {
 				sigma_B := make([]byte, l_pub_seed)
 				x, err := ToBytes(int32(math.Pow(2, float64(1+int(math.Ceil(math.Log2(float64(t)))))))+int32(i), 4)
 				if err != nil {
+					fmt.Print("Failed getting byte value\n")
 					return nil
 				}
 				idx := 0
@@ -402,6 +404,6 @@ func Verify(pk, msg_s []byte) []byte {
 	if equal {
 		return msg
 	}
-	// fmt.Printf("d: %v\nd_prime: %v", d, d_prime)
+	fmt.Print("Signature not valid\n")
 	return nil
 }
