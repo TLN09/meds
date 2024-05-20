@@ -62,6 +62,7 @@ func TestCompressG(t *testing.T) {
 }
 
 func TestSF(t *testing.T) {
+	q = 4093
 	for k := 2; k < 21; k++ {
 		m := k
 		n := k
@@ -72,7 +73,7 @@ func TestSF(t *testing.T) {
 				G.Set(i, j, finiteField.NewFieldElm(n, q))
 			}
 		}
-		t.Logf("G: %v", G)
+		// t.Logf("G: %v", G)
 
 		// Write A and B to a file
 		err := os.WriteFile("SF_test.txt", G.Compress(), 0666)
@@ -109,34 +110,57 @@ func TestSF(t *testing.T) {
 	}
 }
 
+func TestSF_on_submatrix(t *testing.T) {
+	q = 7
+	for k := 2; k < 21; k++ {
+		m := k
+		n := k
+		G := matrix.New(k, m*n, q)
+		for i := 0; i < G.M; i++ {
+			for j := 0; j < G.N; j++ {
+				n := rand.Intn(int(q))
+				G.Set(i, j, finiteField.NewFieldElm(n, q))
+			}
+		}
+		t.Logf("G: %v", G)
+		E := SF(G)
+		R := matrix.Decompress(G.Compress(), G.M, G.N, G.Q)
+		SF_on_submatrix(R, 0, 0, R.M, R.N)
+		if !R.Equals(E) {
+			t.Errorf("\nSF(G): %v\nE: %v\n", R, E)
+		}
+	}
+}
+
 func TestSolve(t *testing.T) {
 	// q = 7 test case
 	k := 4
 	m := k
 	n := k
 	p0 := [][]int{
-		{1, 1, 4, 0},
-		{0, 3, 0, 4},
-		{0, 1, 0, 6},
-		{0, 2, 4, 6},
+		{1, 3, 0, 4},
+		{0, 2, 0, 0},
+		{0, 3, 6, 3},
+		{0, 2, 6, 6},
 	}
 	p1 := [][]int{
-		{0, 6, 2, 4},
-		{1, 1, 6, 0},
-		{0, 0, 3, 2},
-		{0, 3, 5, 1},
+		{0, 2, 5, 3},
+		{1, 2, 2, 6},
+		{0, 0, 2, 1},
+		{0, 2, 4, 4},
 	}
+
 	e_a := [][]int{
-		{6, 1, 1, 3},
-		{4, 3, 5, 1},
-		{0, 6, 3, 3},
-		{5, 3, 1, 2},
+		{2, 5, 3, 1},
+		{2, 5, 4, 1},
+		{0, 6, 1, 2},
+		{3, 6, 5, 4},
 	}
 	e_b_inv := [][]int{
-		{4, 1, 5, 3},
-		{6, 6, 2, 4},
-		{4, 2, 3, 0},
-		{5, 3, 1, 1},
+		{0, 3, 1, 6},
+		{0, 3, 0, 5},
+		{5, 5, 2, 2},
+		{2, 5, 4, 3},
 	}
 
 	P := make([]*matrix.Matrix, 2)
@@ -165,7 +189,7 @@ func TestSolve(t *testing.T) {
 	// 	}
 	// }
 
-	a := finiteField.NewFieldElm(2, 7)
+	a := finiteField.NewFieldElm(-3, 7)
 	t.Logf("(k, m, n): (%v, %v, %v)\n", k, m, n)
 	t.Logf("q: %v\n", 7)
 	t.Logf("a[m-1, m-1]: %v\n", a)
@@ -174,7 +198,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv := Solve(G, a, m, n)
 	if A == nil || B_inv == nil || !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 11 test
@@ -237,7 +261,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 13 test
@@ -299,7 +323,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 101 test
@@ -361,7 +385,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 1009 test
@@ -423,7 +447,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 3359 test
@@ -485,7 +509,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 4091 test
@@ -547,7 +571,7 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 
 	// q = 4093 test
@@ -609,13 +633,14 @@ func TestSolve(t *testing.T) {
 	// }
 	A, B_inv = Solve(G, a, m, n)
 	if !A.Equals(E_A) || !B_inv.Equals(E_B_inv) {
-		t.Errorf("A: %v\nB_inv: %v", A, B_inv)
+		t.Fatalf("A: %v\nB_inv: %v", A, B_inv)
 	}
 }
 
 func TestInverse(test *testing.T) {
 
 }
+
 func TestParseHash(test *testing.T) {
 	sk, _ := KeyGen()
 	msg := []byte("This is a message")

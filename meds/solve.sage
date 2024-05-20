@@ -99,7 +99,7 @@ def solve_symb(P0prime, Amm):
     return A, B_inv
 
 
-q = 4093
+q = 7
 
 m = 4
 n = 4

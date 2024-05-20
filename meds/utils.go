@@ -329,6 +329,7 @@ func Solve(G_prime *matrix.Matrix, a *finiteField.Fq, m, n int) (*matrix.Matrix,
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
 	backprop_to_sf(rsys, m)
 	// SF_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
+	// rsys = SF(rsys)
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys_rref: %v\n", rsys), "0", " "))
 
 	values := make([]*finiteField.Fq, m*m+n*n)
@@ -466,7 +467,7 @@ func SF_on_submatrix(M *matrix.Matrix, row, col, m, n int) error {
 		if zero_col_submatrix(M, l, row, col, m, zero) {
 			return fmt.Errorf("includes zero col %v", l)
 		}
-		for k := 1 + 1; k < m && M.Get(row+i, col+l).Equals(zero); k++ {
+		for k := i + 1; k < m && M.Get(row+i, col+l).Equals(zero); k++ {
 			swap_rows_submatrix(M, i, k, row, col, n)
 		}
 		mult_fixed_const_submatrix(M, i, M.Get(row+i, col+l).Inv(), row, col, n)
