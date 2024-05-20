@@ -56,6 +56,22 @@ func TestVerify(test *testing.T) {
 	}
 }
 
+func TestVerify167717(test *testing.T) {
+	ParameterSetup(167717)
+	for i := 0; i < 10; i++ {
+		pk, sk := KeyGen()
+		msg_s, err := Sign(sk, msg)
+		if err != nil {
+			test.Errorf("%v\n", err)
+		}
+		// test.Logf("\nmsg: %v\nmsg_s:%v\n", string(msg), string(msg_s))
+		msg_v := Verify(pk, msg_s)
+		if msg_v == nil {
+			test.Errorf("Invalid Signature MEDS-%v\n", 167717)
+		}
+	}
+}
+
 func BenchmarkKeygen9923(b *testing.B) {
 	ParameterSetup(9923)
 	b.ResetTimer()
