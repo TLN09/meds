@@ -63,7 +63,7 @@ func TestCompressG(t *testing.T) {
 
 func TestSF(t *testing.T) {
 	q = 4093
-	for k := 2; k < 21; k++ {
+	for k := 2; k <= 30; k++ {
 		m := k
 		n := k
 		G := matrix.New(k, m*n, q)
@@ -111,8 +111,8 @@ func TestSF(t *testing.T) {
 }
 
 func TestSF_on_submatrix(t *testing.T) {
-	q = 7
-	for k := 2; k < 21; k++ {
+	q = 4093
+	for k := 2; k <= 30; k++ {
 		m := k
 		n := k
 		G := matrix.New(k, m*n, q)
@@ -987,7 +987,16 @@ func TestSolve(t *testing.T) {
 }
 
 func TestInverse(test *testing.T) {
-
+	for _, p := range parameterSets {
+		ParameterSetup(p)
+		seed := []byte("SEED_SEED_SEED")
+		A := ExpandInvMat(seed, q, n)
+		A_inv := Inverse(A)
+		I := matrix.Identity(30, q)
+		if !A.Mul(A_inv).Equals(I) {
+			test.Errorf("%v failed\n", p)
+		}
+	}
 }
 
 func TestParseHash(test *testing.T) {
@@ -1118,6 +1127,7 @@ func TestPathToSeedTree(test *testing.T) {
 }
 
 func TestBase(test *testing.T) {
+	ParameterSetup(parameterSets[5])
 	delta := Randombytes(l_sec_seed)
 	sigma_G_0 := make([]byte, l_pub_seed)
 	sigma_A := make([]byte, l_pub_seed)

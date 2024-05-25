@@ -404,6 +404,7 @@ func Verify(pk, msg_s []byte) []byte {
 	if equal {
 		return msg
 	}
+
 	fmt.Print("Signature not valid\n")
 	return nil
 }

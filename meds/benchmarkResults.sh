@@ -1,9 +1,9 @@
 PARAMETERSETS="9923 13220 41711 69497 134180 167717"
-OPS="Verify"
+OPS="Keygen Sign Verify"
 for p in $PARAMETERSETS
 do
     for op in $OPS
     do
-        go test -benchmem -count=20 -run=^$ -bench ^Benchmark${op}${p}$ meds
+        benchstat ${op}${p}_benchmark.txt >> benchmark_res.txt
     done
 done
