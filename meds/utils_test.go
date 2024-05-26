@@ -1297,6 +1297,7 @@ func BenchmarkSolve10(b *testing.B) {
 }
 
 func BenchmarkSolve20(b *testing.B) {
+	q := 4093
 	n := 20
 	m := 20
 
@@ -1415,6 +1416,7 @@ func BenchmarkSolve20(b *testing.B) {
 }
 
 func BenchmarkSolve30(b *testing.B) {
+	q := 4093
 	n := 30
 	m := 30
 

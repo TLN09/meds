@@ -329,7 +329,6 @@ func Solve(G_prime *matrix.Matrix, a *finiteField.Fq, m, n int) (*matrix.Matrix,
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
 	backprop_to_sf(rsys, m)
 	// SF_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
-	// rsys = SF(rsys)
 	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys_rref: %v\n", rsys), "0", " "))
 
 	values := make([]*finiteField.Fq, m*m+n*n)
