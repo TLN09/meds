@@ -71,7 +71,6 @@ func (x *Fq) UnaryMinus() *Fq {
 
 func (x *Fq) BitLen() int {
 	return 16
-	// return int(math.Ceil(math.Log2(float64(x.q))))
 }
 
 func (x *Fq) Bytes() []byte {

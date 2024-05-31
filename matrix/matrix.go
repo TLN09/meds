@@ -1,8 +1,6 @@
 package matrix
 
 import (
-	"fmt"
-	"math"
 	"meds/finiteField"
 	"strings"
 )
@@ -275,69 +273,6 @@ func Decompress(b []byte, m int, n int, q int) *Matrix {
 	return M
 }
 
-func (M *Matrix) nonFiniteFieldREF() [][]float64 {
-	m := make([][]float64, M.M)
-	// Copy values in matrix
-	for i := 0; i < M.M; i++ {
-		m[i] = make([]float64, M.N)
-	}
-	for i := 0; i < M.M; i++ {
-		for j := 0; j < M.N; j++ {
-			m[i][j] = float64(M.Get(i, j).Value())
-		}
-	}
-
-	// Make REF
-	for i := 0; i < M.M; i++ {
-		// fmt.Printf("%v\n", sf)
-		l := i
-		zero_col := true
-
-		for j := 0; j < M.M && zero_col; j++ {
-			zero_col = m[i][j] == 0
-		}
-
-		if zero_col {
-			return nil
-		}
-		for k := i + 1; k < M.M && m[i][l] == 0; k++ {
-			for x := 0; x < len(m[0]); x++ {
-				m[i][x], m[k][x] = m[k][x], m[i][x]
-			}
-		}
-
-		c := 1 / m[i][l]
-		for j := 0; j < M.N; j++ {
-			m[i][j] *= c
-		}
-
-		for k := i + 1; k < M.M; k++ {
-			c := -m[k][l]
-			for j := 0; j < M.N; j++ {
-				m[k][j] += m[i][j] * c
-			}
-		}
-	}
-
-	return m
-}
-
-func (M *Matrix) Det() int {
-	ref := M.nonFiniteFieldREF()
-	if ref == nil {
-		return 1
-	}
-	det := float64(1)
-	for i := 0; i < M.M; i++ {
-		det *= ref[i][i]
-	}
-	return int(math.Round(det))
-}
-
-func (M *Matrix) Invertable() bool {
-	return M.Det() != 0
-}
-
 func (M *Matrix) UnaryMinus() *Matrix {
 	for i := 0; i < M.M; i++ {
 		for j := 0; j < M.N; j++ {
@@ -346,78 +281,4 @@ func (M *Matrix) UnaryMinus() *Matrix {
 	}
 
 	return M
-}
-
-func (M *Matrix) Flatten() []*finiteField.Fq {
-	r := make([]*finiteField.Fq, M.M*M.N)
-	idx := 0
-
-	for i := 0; i < M.M; i++ {
-		for j := 0; j < M.N; j++ {
-			r[idx] = M.Get(i, j)
-			idx++
-		}
-	}
-
-	return r
-}
-
-// Precondition: B has the correct shape to calculate A * B symbolicly
-func (A *Matrix) SymMul(B [][]string) *[][]string {
-	m := A.M
-	n := len(B[0])
-	R := make([][]string, m)
-	for i := 0; i < m; i++ {
-		R[i] = make([]string, n)
-		for j := 0; j < n; j++ {
-			elm := []string{}
-			for k := 0; k < A.N; k++ {
-				if !A.Get(i, k).Equals(finiteField.NewFieldElm(0, A.Q)) {
-					elm = append(elm, fmt.Sprintf("%v * %v", A.Get(i, k), B[k][j]))
-				}
-			}
-			R[i][j] = strings.Join(elm, " + ")
-		}
-	}
-
-	return &R
-}
-
-func SymMul(A *[][]string, B *Matrix) *[][]string {
-	m := len(*A)
-	n := B.N
-	R := make([][]string, m)
-	for i := 0; i < m; i++ {
-		R[i] = make([]string, n)
-		for j := 0; j < n; j++ {
-			elm := []string{}
-			for k := 0; k < B.M; k++ {
-				if !B.Get(k, j).Equals(finiteField.NewFieldElm(0, B.Q)) {
-					elm = append(elm, fmt.Sprintf("%v * %v", B.Get(k, j), (*A)[i][k]))
-				}
-			}
-			if len(elm) == 0 {
-				R[i][j] = "0"
-			} else {
-				R[i][j] = strings.Join(elm, " + ")
-			}
-		}
-	}
-
-	return &R
-}
-
-func SymSub(A *[][]string, B *[][]string) *[][]string {
-	m := len(*A)
-	n := len((*A)[0])
-	R := make([][]string, m)
-
-	for i := 0; i < m; i++ {
-		R[i] = make([]string, n)
-		for j := 0; j < n; j++ {
-			R[i][j] = fmt.Sprintf("%v#-#%v", (*A)[i][j], strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll((*B)[i][j], "-", "$"), "+", "-"), "$", "+"))
-		}
-	}
-
-	return &R
 }

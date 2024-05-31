@@ -263,7 +263,6 @@ func SF(M *matrix.Matrix) *matrix.Matrix {
 	zero := finiteField.NewFieldElm(0, M.Q)
 
 	for i := 0; i < sf.M; i++ {
-		// fmt.Printf("%v\n", sf)
 		l := i
 		if zeroCol(sf, l) {
 			return nil
@@ -312,32 +311,23 @@ func Inverse(M *matrix.Matrix) *matrix.Matrix {
 
 func Solve(G_prime *matrix.Matrix, a *finiteField.Fq, m, n int) (*matrix.Matrix, *matrix.Matrix) {
 	P0_prime := RowsToMatricies(G_prime, m, n)[:2]
-	// fmt.Printf("(m, n): (%v, %v)\n", m, n)
 	P := make([]*matrix.Matrix, 2)
 	P[0] = matrix.Identity(m, P0_prime[0].Q)
 	P[1] = matrix.UpperShift(m, P0_prime[0].Q)
 
 	rsys := matrix.New(m*m+n*n-1, m*m+n*n, P0_prime[0].Q)
 	fill_rsys(rsys, P0_prime, P, a)
-	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
 	err := solve_sub_matricies(rsys, m, n)
 	if err != nil {
-		// fmt.Printf("%v\n", err)
-		// fmt.Printf("%v\n", rsys)
 		return nil, nil
 	}
-	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys: %v\n", rsys), "0", " "))
 	backprop_to_sf(rsys, m)
-	// SF_on_submatrix(rsys, 0, 0, rsys.M, rsys.N)
-	// fmt.Printf("%v", strings.ReplaceAll(fmt.Sprintf("rsys_rref: %v\n", rsys), "0", " "))
 
 	values := make([]*finiteField.Fq, m*m+n*n)
 	for i := 0; i < rsys.M; i++ {
 		values[i] = rsys.Get(i, rsys.N-1)
 	}
 	values[len(values)-1] = a
-
-	// fmt.Printf("values: %v\n", values)
 
 	B_inv := array_to_matrix(m, values[:n*n], rsys.Q)
 	A := array_to_matrix(m, values[n*n:], rsys.Q)
@@ -356,8 +346,6 @@ func array_to_matrix(m int, values []*finiteField.Fq, q int) *matrix.Matrix {
 func fill_rsys(rsys *matrix.Matrix, P0_prime []*matrix.Matrix, P []*matrix.Matrix, a *finiteField.Fq) {
 	eqs1_A_coeff := P0_prime[0].Transpose().UnaryMinus()
 	eqs2_A_coeff := P0_prime[1].Transpose().UnaryMinus()
-	// fmt.Printf("P[1]: %v\n", P[1])
-	// fmt.Printf("A_coefficients: %v\n", eqs1_A_coeff)
 
 	// Fill in coefficients of A
 	row := 0
@@ -422,7 +410,6 @@ func fill_rsys(rsys *matrix.Matrix, P0_prime []*matrix.Matrix, P []*matrix.Matri
 func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 	base_row := m * m
 	base_col := n * n
-	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", base_row, base_col, m, 2*n)
 	err := SF_on_submatrix(rsys, base_row, base_col, m, 2*n)
 	if err != nil {
 		return err
@@ -439,7 +426,6 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 		row += m
 		col += n
 	}
-	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", row, col, m, 2*n)
 	err = SF_on_submatrix(rsys, row, col, m, 2*n)
 	if err != nil {
 		return err
@@ -447,7 +433,6 @@ func solve_sub_matricies(rsys *matrix.Matrix, m, n int) error {
 	row += m
 	col += n
 
-	// fmt.Printf("(row, col, m, n): (%v, %v, %v, %v)\n", row, col, m-1, n)
 	err = SF_on_submatrix(rsys, row, col, m-1, n)
 	if err != nil {
 		return err
@@ -461,7 +446,6 @@ func SF_on_submatrix(M *matrix.Matrix, row, col, m, n int) error {
 
 	failed := false
 	for i := 0; i < m; i++ {
-		// fmt.Printf("%v\n", M)
 		l := i
 		if zero_col_submatrix(M, l, row, col, m, zero) {
 			return fmt.Errorf("includes zero col %v", l)
@@ -479,7 +463,6 @@ func SF_on_submatrix(M *matrix.Matrix, row, col, m, n int) error {
 		}
 	}
 	if failed {
-		// fmt.Printf("Failed\n")
 		return errors.New("failed sf of submatrix")
 	}
 	return nil
@@ -508,7 +491,6 @@ func zero_col_submatrix(M *matrix.Matrix, j, row, col, m int, zero *finiteField.
 
 	for i := 0; i < m && zero_col; i++ {
 		zero_col = M.Get(row+i, col+j).Equals(zero)
-		// fmt.Printf("i: %v\n", i)
 	}
 
 	return zero_col
@@ -522,12 +504,8 @@ func backprop_to_sf(M *matrix.Matrix, m int) {
 			if M.Get(i, col).Equals(zero) {
 				continue
 			}
-			// fmt.Printf("row, col, i: %v, %v, %v\n", row, col, i)
-			// fmt.Printf("M[i, col]: %v\n", M.Get(i, col))
 			c := M.Get(i, col).UnaryMinus()
-			// fmt.Printf("c: %v\n", c)
 			constTimesEq1PlusEq2(M, c, row, i)
-			// const_times_eq1_plus_eq2_submatrix(M, c, row, i, 0, col, M.N-col)
 		}
 		col--
 	}
@@ -538,7 +516,6 @@ func SeedTree(seed, salt []byte, t int) ([][]byte, error) {
 	root := seedTree.New(seed, salt, 0, 0, nil, nil, nil)
 	leafs := make([]*seedTree.SeedTreeNode, t)
 	err := root.CreateSeedTree(treeHeight, &leafs)
-	// fmt.Printf("seed tree: %v\n", root)
 	if err != nil {
 		return [][]byte{}, err
 	}

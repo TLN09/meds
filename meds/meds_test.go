@@ -48,7 +48,6 @@ func TestVerify(test *testing.T) {
 		if err != nil {
 			test.Errorf("%v\n", err)
 		}
-		// test.Logf("\nmsg: %v\nmsg_s:%v\n", string(msg), string(msg_s))
 		msg_v := Verify(pk, msg_s)
 		if msg_v == nil {
 			test.Errorf("Invalid Signature MEDS-%v\n", p)
@@ -64,7 +63,6 @@ func TestVerify167717(test *testing.T) {
 		if err != nil {
 			test.Errorf("%v\n", err)
 		}
-		// test.Logf("\nmsg: %v\nmsg_s:%v\n", string(msg), string(msg_s))
 		msg_v := Verify(pk, msg_s)
 		if msg_v == nil {
 			test.Errorf("Invalid Signature MEDS-%v\n", 167717)

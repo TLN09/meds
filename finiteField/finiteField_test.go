@@ -57,7 +57,6 @@ func TestInv(t *testing.T) {
 	x := NewFieldElm(3351, q)
 	e := NewFieldElm(1, q)
 	inv := x.Inv()
-	// inv := NewFieldElm(171, q)
 
 	r := x.Mul(inv)
 

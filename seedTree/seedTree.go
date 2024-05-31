@@ -28,14 +28,11 @@ func (node *SeedTreeNode) Seed() []byte {
 }
 
 func (node *SeedTreeNode) CreateSeedTree(maxHeight int, leafs *[]*SeedTreeNode) error {
-	// fmt.Printf("(%v, %v)\n", node.i, node.j)
 	if node.j >= len(*leafs) {
-		// fmt.Printf("(%v, %v): too far down\n", node.i, node.j)
 		return nil
 	}
 
 	if maxHeight == 0 {
-		// fmt.Printf("(%v, %v): inserting this into leafs\n", node.i, node.j)
 		(*leafs)[node.j] = node
 		return nil
 	}
@@ -45,17 +42,13 @@ func (node *SeedTreeNode) CreateSeedTree(maxHeight int, leafs *[]*SeedTreeNode) 
 		return err
 	}
 
-	// fmt.Printf("(%v, %v): left.CreateSeedTree\n", node.i, node.j)
 	err = node.left.CreateSeedTree(maxHeight-1, leafs)
-	// fmt.Printf("(%v, %v): left.CreateSeedTree created\n", node.i, node.j)
 	if err != nil {
 		return err
 	}
 
 	if (*leafs)[len(*leafs)-1] == nil {
-		// fmt.Printf("(%v, %v): right.CreateSeedTree\n", node.i, node.j)
 		err = node.right.CreateSeedTree(maxHeight-1, leafs)
-		// fmt.Printf("(%v, %v): right.CreateSeedTree created\n", node.i, node.j)
 	} else {
 		node.right = nil
 	}
@@ -181,8 +174,6 @@ func (node *SeedTreeNode) pathToSeedTreeComputeSeeds() error {
 
 func (node *SeedTreeNode) addLeafSeeds(seeds *[][]byte, idx *int, l_tree_seed int) {
 	if node.isLeaf() {
-		// fmt.Printf("(%v, %v): %v\n", node.i, node.j, node.seed)
-		// fmt.Printf("idx: %3v\n", *idx)
 		if len(node.seed) != 0 {
 			for i := 0; i < l_tree_seed; i++ {
 				(*seeds)[(*idx)][i] = node.seed[i]

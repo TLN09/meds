@@ -208,7 +208,6 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	A_inv := make([]*matrix.Matrix, s-1)
 	B_inv := make([]*matrix.Matrix, s-1)
 	for i := 0; i < s-1; i++ {
-		// fmt.Printf("%v\n", len(sk[f_sk:f_sk+l_f_mm]))
 		A_inv[i] = matrix.Decompress(sk[f_sk:f_sk+l_f_mm], m, m, q)
 		f_sk += l_f_mm
 		B_inv[i] = matrix.Decompress(sk[f_sk:f_sk+l_f_nn], n, n, q)
@@ -221,9 +220,7 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	alpha := make([]byte, l_salt)
 	xof.Read(rho)
 	xof.Read(alpha)
-	// fmt.Printf("alpha: %v\n", alpha)
 	seeds, err := SeedTree(rho, alpha, t)
-	// fmt.Printf("seeds: %v\n", seeds)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -266,19 +263,16 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	H := sha3.NewShake256()
 	for i := 0; i < t; i++ {
 		H.Write(G_tilde[i].Submatrix(0, G_tilde[i].M, k, m*n).Compress())
-		// fmt.Printf("G_tilde[i]: %v\n", G_tilde[i].Submatrix(0, G_tilde[i].M, k, m*n).Compress())
 	}
 	H.Write(msg)
 	d := make([]byte, l_digest)
 	H.Read(d)
-	// fmt.Printf("d: %v\n", d)
 
 	h := ParseHash(s, t, w, d)
 	msg_s := make([]byte, l_sig+len(msg))
 	idx := 0
 	for i := 0; i < t; i++ {
 		if h[i] > 0 {
-			// fmt.Printf("h[i]: %v\nÃ: %v\nA^-1: %v\nB^-1: %v\nB~: %v\n", h[i], len(A_tilde), len(A_inv), len(B_inv), len(B_tilde))
 			mu := A_tilde[i].Mul(A_inv[h[i]-1])
 			nu := B_inv[h[i]-1].Mul(B_tilde[i])
 			for _, b := range mu.Compress() {
@@ -291,8 +285,6 @@ func Sign(sk, msg []byte) ([]byte, error) {
 			}
 		}
 	}
-
-	// fmt.Printf("%v\n", len(v) == 2*w)
 
 	p := SeedTreeToPath(w, t, h, rho, alpha)
 	for i := 0; i < len(p); i++ {
@@ -312,8 +304,6 @@ func Sign(sk, msg []byte) ([]byte, error) {
 		idx++
 	}
 
-	// fmt.Printf("%v\n", msg_s)
-
 	return msg_s, nil
 }
 
@@ -330,12 +320,9 @@ func Verify(pk, msg_s []byte) []byte {
 	p := msg_s[l_sig-l_digest-l_salt-l_path : l_sig-l_digest-l_salt]
 	d := msg_s[l_sig-l_digest-l_salt : l_sig-l_salt]
 	alpha := msg_s[l_sig-l_salt : l_sig]
-	// fmt.Printf("alpha: %v\nd: %v\n", alpha, d)
 	msg := msg_s[l_sig:]
-	// fmt.Printf("msg: %v\n", string(msg))
 	h := ParseHash(s, t, w, d)
 	seeds := PathToSeedTree(h, p, alpha, l_tree_seed)
-	// fmt.Printf("seeds: %v\n", seeds)
 	f_msg_s := 0
 	I := matrix.Identity(m, q)
 	G_hat := make([]*matrix.Matrix, t)
@@ -393,7 +380,6 @@ func Verify(pk, msg_s []byte) []byte {
 	H := sha3.NewShake256()
 	for i := 0; i < t; i++ {
 		H.Write(G_hat[i].Submatrix(0, G_hat[i].M, k, m*n).Compress())
-		// fmt.Printf("G_hat[i]: %v\n", G_hat[i].Submatrix(0, G_hat[i].M, k, m*n).Compress())
 	}
 	H.Write(msg)
 	H.Read(d_prime)
