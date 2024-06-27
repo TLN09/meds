@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"math"
 	"meds/finiteField"
 	"strings"
 )
@@ -231,22 +232,27 @@ func (A *Matrix) Kroenecker_product(B *Matrix) *Matrix {
 	return R
 }
 
-func (A *Matrix) Compress() []byte {
-	q_length := 16
-	// Alignment to an even number of bytes
-	if q_length%8 != 0 {
-		q_length += 8 - (q_length % 8)
-	}
-	q_length /= 8
-	b := make([]byte, A.N*A.M*q_length)
-
-	idx := 0
-	for i := 0; i < A.M; i++ {
-		for j := 0; j < A.N; j++ {
-			b_ij := A.Get(i, j).Bytes()
-			b[idx] = b_ij[0]
-			b[idx+1] = b_ij[1]
-			idx += 2
+func (M *Matrix) Compress() []byte {
+	length := int(math.Ceil(math.Log2(float64(M.Q))/float64(8))) * M.M * M.N
+	b := make([]byte, length)
+	f_byte := 0
+	f_bit := 0
+	q_bitlen := M.Get(0, 0).BitLen()
+	for i := 0; i < M.M; i++ {
+		for j := 0; j < M.N; j++ {
+			c := 0
+			v := M.Get(i, j).Value()
+			for c < q_bitlen {
+				c_prime := min(8-f_bit, q_bitlen-c)
+				b[f_byte] += byte(v % int(math.Pow(float64(2), float64(c_prime))) * int(math.Pow(float64(2), float64(f_bit))))
+				v = int(math.Floor(float64(v) / math.Pow(float64(2), float64(c_prime))))
+				c += c_prime
+				f_bit += c_prime
+				if f_bit == 8 {
+					f_bit = 0
+					f_byte++
+				}
+			}
 		}
 	}
 
@@ -255,18 +261,25 @@ func (A *Matrix) Compress() []byte {
 
 func Decompress(b []byte, m int, n int, q int) *Matrix {
 	M := New(m, n, q)
-	q_length := M.Get(0, 0).BitLen()
-	// Alignment to an even number of bytes
-	if q_length%8 != 0 {
-		q_length += 8 - (q_length % 8)
-	}
-	q_length /= 8
-	idx := 0
-
+	f_byte := 0
+	f_bit := 0
+	q_bitlen := M.Get(0, 0).BitLen()
 	for i := 0; i < m; i++ {
 		for j := 0; j < n; j++ {
-			M.Set(i, j, finiteField.NewFromBytes(b[idx:idx+q_length], M.Q))
-			idx += q_length
+			c := 0
+			v := 0
+			for c < q_bitlen {
+				c_prime := min(8-f_bit, q_bitlen-c)
+				v += int(math.Floor(float64(b[f_byte])/math.Pow(float64(2), float64(f_bit)))) % int(math.Pow(2, float64(c_prime))) * int(math.Pow(2, float64(c)))
+				c += c_prime
+				f_bit += c_prime
+				if f_bit == 8 {
+					f_bit = 0
+					f_byte++
+				}
+			}
+
+			M.Set(i, j, finiteField.NewFieldElm(v, M.Q))
 		}
 	}
 
