@@ -14,6 +14,27 @@ var l_f_mm, l_f_nn, l_G_i, l_sk, l_pk, l_path, l_sig int
 
 func ParameterSetup(set int) {
 	switch set {
+	case 1:
+		q = 4093
+		q_bitlen = 16
+		n = 3
+		m = 3
+		k = 3
+		s = 4
+		t = 1152
+		w = 14
+		l_tree_seed = 16
+		l_sec_seed = 32
+		l_pub_seed = 32
+		l_salt = 32
+		l_digest = 32
+		l_f_mm = m * m * (q_bitlen / 8)
+		l_f_nn = n * n * (q_bitlen / 8)
+		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
+		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+		l_pk = (s-1)*l_G_i + l_pub_seed
+		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 9923:
 		q = 4093
 		q_bitlen = 16
