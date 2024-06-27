@@ -1,3 +1,4 @@
 */*.sage.py
 */*.txt
+*.txt
 bin/*

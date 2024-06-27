@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"meds"
+	"meds/meds"
 	"os"
 )
 
