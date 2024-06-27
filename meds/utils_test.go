@@ -15,9 +15,7 @@ import (
 )
 
 func TestCompressG(t *testing.T) {
-	k := 14
-	m := 14
-	n := 14
+	ParameterSetup(1)
 	G := matrix.New(k, m*n, q)
 	E := matrix.New(k, m*n, q)
 	for i := 0; i < G.M; i++ {
