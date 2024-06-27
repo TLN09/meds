@@ -162,6 +162,10 @@ func KeyGen() ([]byte, []byte) {
 	addToKey(sk, delta, &sk_idx)
 	addToKey(sk, sigma_G_0, &sk_idx)
 	addToKey(pk, sigma_G_0, &pk_idx)
+
+	offset := n * m * Bytelen(q)
+	sk_A_idx := sk_idx
+	sk_B_idx := sk_idx + (s-1)*offset
 	I := matrix.Identity(m, q)
 	for i := 1; i < s; i++ {
 		var G *matrix.Matrix = nil
@@ -187,8 +191,8 @@ func KeyGen() ([]byte, []byte) {
 			G = SF(G)
 		}
 		addToKey(pk, CompressG(G), &pk_idx)
-		addToKey(sk, A_inv.Compress(), &sk_idx)
-		addToKey(sk, B_inv.Compress(), &sk_idx)
+		addToKey(sk, A_inv.Compress(), &sk_A_idx)
+		addToKey(sk, B_inv.Compress(), &sk_B_idx)
 	}
 	return pk, sk
 }
@@ -210,6 +214,8 @@ func Sign(sk, msg []byte) ([]byte, error) {
 	for i := 0; i < s-1; i++ {
 		A_inv[i] = matrix.Decompress(sk[f_sk:f_sk+l_f_mm], m, m, q)
 		f_sk += l_f_mm
+	}
+	for i := 0; i < s-1; i++ {
 		B_inv[i] = matrix.Decompress(sk[f_sk:f_sk+l_f_nn], n, n, q)
 		f_sk += l_f_nn
 	}

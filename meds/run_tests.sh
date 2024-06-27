@@ -1,5 +1,5 @@
-OPS="Keygen Sign Verify"
+OPS="KeyGen Sign Verify"
 for op in $OPS
 do
-    go test -timeout=30m -benchmem -count=10 -run=^$ -bench ^Benchmark${op} meds > ${op}_benchmark.txt
+    go test -timeout=30m -run ^Test${op} meds > ${op}_test.txt
 done
