@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
-var q, q_bitlen, n, m, k, s, t, w int
+var q, n, m, k, s, t, w int
 var l_tree_seed, l_sec_seed, l_pub_seed, l_salt, l_digest int
 var l_f_mm, l_f_nn, l_G_i, l_sk, l_pk, l_path, l_sig int
 
@@ -16,7 +16,6 @@ func ParameterSetup(set int) {
 	switch set {
 	case 1:
 		q = 4093
-		q_bitlen = 16
 		n = 3
 		m = 3
 		k = 3
@@ -28,16 +27,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 9923:
 		q = 4093
-		q_bitlen = 16
 		n = 14
 		m = 14
 		k = 14
@@ -49,16 +40,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 13220:
 		q = 4093
-		q_bitlen = 16
 		n = 14
 		m = 14
 		k = 14
@@ -70,16 +53,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 41711:
 		q = 4093
-		q_bitlen = 16
 		n = 22
 		m = 22
 		k = 22
@@ -91,16 +66,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 69497:
 		q = 4093
-		q_bitlen = 16
 		n = 22
 		m = 22
 		k = 22
@@ -112,16 +79,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 134180:
 		q = 2039
-		q_bitlen = 16
 		n = 30
 		m = 30
 		k = 30
@@ -133,16 +92,8 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	case 167717:
 		q = 2039
-		q_bitlen = 16
 		n = 30
 		m = 30
 		k = 30
@@ -154,16 +105,18 @@ func ParameterSetup(set int) {
 		l_pub_seed = 32
 		l_salt = 32
 		l_digest = 32
-		l_f_mm = m * m * (q_bitlen / 8)
-		l_f_nn = n * n * (q_bitlen / 8)
-		l_G_i = (((k-2)*(m*n-k) + n) * q_bitlen) / 8
-		l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
-		l_pk = (s-1)*l_G_i + l_pub_seed
-		l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
-		l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 	default:
 		fmt.Printf("Parameter selection error\n")
+		return
 	}
+	log2_q := math.Log2(float64(q))
+	l_f_mm = int(math.Ceil(math.Pow(float64(m), 2) * log2_q / 8))
+	l_f_mm = int(math.Ceil(math.Pow(float64(n), 2) * log2_q / 8))
+	l_G_i = int(math.Ceil(float64((k-2)*(m*n-k)+n) * math.Ceil(log2_q) / 8))
+	l_sk = (s-1)*(l_f_mm+l_f_nn) + l_sec_seed + l_pub_seed
+	l_pk = (s-1)*l_G_i + l_pub_seed
+	l_path = (int(math.Pow(2, math.Ceil(math.Log2(float64(w))))) + w*(int(math.Ceil(math.Log2(float64(t))))-int(math.Ceil(math.Log2(float64(w))))-1)) * l_tree_seed
+	l_sig = l_digest + w*(l_f_mm+l_f_nn) + l_path + l_salt
 }
 
 func KeyGen() ([]byte, []byte) {
@@ -184,9 +137,8 @@ func KeyGen() ([]byte, []byte) {
 	addToKey(sk, sigma_G_0, &sk_idx)
 	addToKey(pk, sigma_G_0, &pk_idx)
 
-	offset := n * m * Bytelen(q)
 	sk_A_idx := sk_idx
-	sk_B_idx := sk_idx + (s-1)*offset
+	sk_B_idx := sk_idx + (s-1)*l_f_mm
 	I := matrix.Identity(m, q)
 	for i := 1; i < s; i++ {
 		var G *matrix.Matrix = nil
