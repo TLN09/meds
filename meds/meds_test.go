@@ -55,22 +55,7 @@ func TestVerify(test *testing.T) {
 	}
 }
 
-func TestVerify167717(test *testing.T) {
-	ParameterSetup(167717)
-	for i := 0; i < 10; i++ {
-		pk, sk := KeyGen()
-		msg_s, err := Sign(sk, msg)
-		if err != nil {
-			test.Errorf("%v\n", err)
-		}
-		msg_v := Verify(pk, msg_s)
-		if msg_v == nil {
-			test.Errorf("Invalid Signature MEDS-%v\n", 167717)
-		}
-	}
-}
-
-func BenchmarkKeygen9923(b *testing.B) {
+func BenchmarkKeyGen9923(b *testing.B) {
 	ParameterSetup(9923)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -78,35 +63,35 @@ func BenchmarkKeygen9923(b *testing.B) {
 		b.Elapsed()
 	}
 }
-func BenchmarkKeygen13220(b *testing.B) {
+func BenchmarkKeyGen13220(b *testing.B) {
 	ParameterSetup(13220)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		KeyGen()
 	}
 }
-func BenchmarkKeygen41711(b *testing.B) {
+func BenchmarkKeyGen41711(b *testing.B) {
 	ParameterSetup(41711)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		KeyGen()
 	}
 }
-func BenchmarkKeygen69497(b *testing.B) {
+func BenchmarkKeyGen69497(b *testing.B) {
 	ParameterSetup(69497)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		KeyGen()
 	}
 }
-func BenchmarkKeygen134180(b *testing.B) {
+func BenchmarkKeyGen134180(b *testing.B) {
 	ParameterSetup(134180)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		KeyGen()
 	}
 }
-func BenchmarkKeygen167717(b *testing.B) {
+func BenchmarkKeyGen167717(b *testing.B) {
 	ParameterSetup(167717)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
