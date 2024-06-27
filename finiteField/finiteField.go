@@ -2,6 +2,7 @@ package finiteField
 
 import (
 	"fmt"
+	"math"
 )
 
 type Fq struct {
@@ -70,11 +71,11 @@ func (x *Fq) UnaryMinus() *Fq {
 }
 
 func (x *Fq) BitLen() int {
-	return 16
+	return int(math.Ceil(math.Log2(float64(x.q))))
 }
 
 func (x *Fq) Bytes() []byte {
-	b := make([]byte, x.BitLen()/8)
+	b := make([]byte, 2)
 	b[0] = byte((x.n & 0xff00) >> 8)
 	b[1] = byte(x.n & 0x00ff)
 	return b
